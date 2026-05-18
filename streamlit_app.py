@@ -217,12 +217,12 @@ def build_question_prompt(question, linhas):
     instructions = textwrap.dedent("""
     Você é um assistente especializado nos dados da Rede Estadual de Ensino do Espírito Santo.
     - Responda APENAS com base nos dados em <dados_planilha>.
-    - Se a informação não estiver nos dados fornecidos, diga claramente que não foi encontrada.
-    - Seja EXTREMAMENTE conciso: responda em UMA única linha.
+    - Se a informação não estiver nos dados fornecidos, diga claramente que não foi encontrada.    
     - NUNCA inicie a resposta apenas com um número. Sempre use uma palavra antes (ex: "São 384 escolas" em vez de "384.").
     - Não invente dados. Não use conhecimento externo.
     - Se a pergunta for ambígua, peça esclarecimento.
     - Para cálculos, mostre o passo a passo usando apenas os dados fornecidos.
+    - A palavra quantidade e numero são o mesmo comando.
     """)
 
     full_prompt = build_prompt(
