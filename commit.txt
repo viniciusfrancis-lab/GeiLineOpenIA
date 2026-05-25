@@ -1,0 +1,6 @@
+git checkout --ours LOGO.png
+git checkout --ours streamlit_app.py
+git add LOGO.png
+git add streamlit_app.py
+git commit -m "Resolve conflitos"
+git push -u origin main
