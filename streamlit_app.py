@@ -20,6 +20,187 @@ st.set_page_config(
 )
 
 # ========================
+# ESTILO VISUAL (IDENTIDADE GOVERNO DO ESPÍRITO SANTO)
+# ========================
+# Apenas visual — não altera nenhuma lógica do aplicativo.
+GEI_AZUL = "#0C447C"        # azul institucional
+GEI_AZUL_CLARO = "#185FA5"  # azul de apoio (balão do usuário)
+GEI_DOURADO = "#EF9F27"     # detalhe da bandeira capixaba
+GEI_VERDE = "#639922"       # status / sucesso
+
+st.markdown(
+    f"""
+    <style>
+    /* ---- Largura central e respiro ---- */
+    .block-container {{
+        max-width: 880px;
+        padding-top: 0rem;
+        padding-bottom: 6rem;
+        overflow: visible;
+    }}
+    /* Garante que o header largo não seja cortado horizontalmente */
+    .stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"] {{
+        overflow-x: hidden;
+    }}
+
+    /* ---- Remove barra nativa do topo sem afetar outros elementos ---- */
+    [data-testid="stHeader"] {{
+        height: 0 !important;
+        min-height: 0 !important;
+        padding: 0 !important;
+        visibility: hidden !important;
+    }}
+
+    /* ---- Header institucional (largura total, sem espaços laterais) ---- */
+    .gei-header {{
+        background: {GEI_AZUL};
+        border-radius: 0;
+        padding: 18px 40px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100vw;
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-top: 0;
+        box-sizing: border-box;
+    }}
+    .gei-header-left {{
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }}
+    .gei-logo {{
+        width: 46px;
+        height: 46px;
+        border-radius: 10px;
+        background: rgba(255,255,255,0.16);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+    }}
+    .gei-title {{
+        font-size: 20px;
+        font-weight: 600;
+        color: #fff;
+        margin: 0;
+        letter-spacing: -0.2px;
+        line-height: 1.1;
+    }}
+    .gei-subtitle {{
+        font-size: 12px;
+        color: rgba(255,255,255,0.82);
+        margin: 2px 0 0 0;
+    }}
+    .gei-status {{
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255,255,255,0.14);
+        padding: 5px 11px;
+        border-radius: 20px;
+    }}
+    .gei-status-dot {{
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: {GEI_VERDE};
+        display: inline-block;
+    }}
+    .gei-status-text {{
+        font-size: 11px;
+        color: #fff;
+    }}
+    .gei-faixa {{
+        height: 3px;
+        background: {GEI_DOURADO};
+        border-radius: 0;
+        margin-bottom: 18px;
+        width: 100vw;
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+        box-sizing: border-box;
+    }}
+    .gei-rodape {{
+        text-align: center;
+        font-size: 11px;
+        color: rgba(120,120,120,0.85);
+        margin-top: 28px;
+    }}
+
+    /* ---- Balões de chat ---- */
+    [data-testid="stChatMessage"] {{
+        background: transparent;
+        padding: 0.25rem 0;
+        align-items: flex-start;
+    }}
+
+    /* === Mensagem do USUÁRIO: balão azul à DIREITA (HTML próprio) === */
+    .gei-user-row {{
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
+        margin: 4px 0;
+    }}
+    .gei-user-bubble {{
+        background: {GEI_AZUL_CLARO};
+        color: #fff;
+        border-radius: 14px 14px 3px 14px;
+        padding: 9px 15px;
+        max-width: 78%;
+        font-size: 15px;
+        line-height: 1.5;
+        word-wrap: break-word;
+    }}
+
+    /* === Mensagem da ASSISTENTE: balão cinza à ESQUERDA === */
+    [data-testid="stChatMessage"] [data-testid="stChatMessageContent"] > div:first-child {{
+        background: rgba(0,0,0,0.04);
+        border-radius: 14px 14px 14px 3px;
+        padding: 9px 15px;
+        width: fit-content;
+        max-width: 100%;
+    }}
+
+    /* ---- Avatar da assistente ---- */
+    [data-testid="stChatMessageAvatarAssistant"] {{
+        background: #E6F1FB !important;
+        color: {GEI_AZUL} !important;
+    }}
+
+    /* ---- Barra de input arredondada ---- */
+    [data-testid="stChatInput"] {{
+        border-radius: 24px;
+        border: 0.5px solid rgba(0,0,0,0.2);
+    }}
+    [data-testid="stChatInput"] textarea::placeholder {{
+        color: rgba(0,0,0,0.4);
+    }}
+
+    /* ---- Botão de enviar com cor institucional ---- */
+    [data-testid="stChatInputSubmitButton"] {{
+        background: {GEI_AZUL} !important;
+        color: #fff !important;
+        border-radius: 50% !important;
+    }}
+    [data-testid="stChatInputSubmitButton"] svg {{
+        fill: #fff !important;
+        color: #fff !important;
+    }}
+
+    /* ---- Banner de sucesso mais discreto ---- */
+    [data-testid="stAlert"] {{
+        border-radius: 10px;
+    }}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+# ========================
 # CONFIGURAÇÕES
 # ========================
 MODEL = "gpt-4.1-mini"
@@ -30,7 +211,7 @@ HISTORY_LENGTH = 5
 SUMMARIZE_OLD_HISTORY = False
 MIN_TIME_BETWEEN_REQUESTS = datetime.timedelta(seconds=2)
 
-MAX_LINHAS_CONTEXTO = 80
+MAX_LINHAS_CONTEXTO = 500
 
 
 # ========================
@@ -252,36 +433,34 @@ def get_response_stream(prompt):
         yield f"\n\n⚠️ Erro ao chamar a API: {str(e)}"
 
 
-def show_feedback_controls(message_index):
-    st.write("")
-    with st.popover("Como fui?"):
-        with st.form(key=f"feedback-{message_index}", border=False):
-            st.markdown(":small[Avaliação]")
-            st.feedback(options="stars")
-            st.text_area("Mais informações (opcional)")
-            ""
-            if st.form_submit_button("Enviar feedback"):
-                st.success("Obrigado pelo feedback!")
-
-
 # ========================
 # UI
 # ========================
-col1, col2, col3 = st.columns([1, 2, 1])
-
-with col1:
-    st.image("LOGO.png", width=150,)
-
-st.title("GEI-line ", anchor=False)
-st.caption("Sua Assistente Virtual")
+# ---- Header institucional (visual) ----
+st.markdown(
+    """
+    <div class="gei-header">
+        <div class="gei-header-left">
+            <div class="gei-logo">✨</div>
+            <div>
+                <p class="gei-title">GEI-line</p>
+                <p class="gei-subtitle">Assistente Virtual · Secretaria da Educação</p>
+            </div>
+        </div>
+        <div class="gei-status">
+            <span class="gei-status-dot"></span>
+            <span class="gei-status-text">Online</span>
+        </div>
+    </div>
+    <div class="gei-faixa"></div>
+    """,
+    unsafe_allow_html=True,
+)
 
 with st.spinner("Carregando planilha..."):
     try:
         linhas_planilha = carregar_dados_estruturado()
-        st.success(
-            f"Planilha carregada com sucesso! ({len(linhas_planilha)} indicadores)",
-            icon="✅",
-        )
+        planilha_ok = True
     except FileNotFoundError:
         st.error(f"Arquivo não encontrado: `{ARQUIVO_DADOS}`")
         st.stop()
@@ -295,6 +474,15 @@ if "total_tokens" not in st.session_state:
     st.session_state.total_tokens = 0
 if "total_perguntas" not in st.session_state:
     st.session_state.total_perguntas = 0
+
+# ---- Mensagem de apresentação da GEI-line (aparece ao abrir) ----
+if not st.session_state.messages:
+    with st.chat_message("assistant"):
+        st.markdown(
+            "Olá! Eu sou a **GEI-line**, sua assistente virtual da Secretaria da "
+            "Educação. Posso ajudar você a consultar os indicadores da Síntese Geral "
+            "da rede estadual. É só digitar sua pergunta abaixo."
+        )
 
 with st.sidebar:
     st.markdown("### 📊 Uso de tokens")
@@ -311,11 +499,25 @@ with st.sidebar:
     st.caption(f"Máx. de linhas por pergunta: {MAX_LINHAS_CONTEXTO}")
     st.caption("Estimativa: ~3.5 chars/token")
 
+def render_user_bubble(texto):
+    """Renderiza a mensagem do usuário como balão azul alinhado à direita.
+    Usa HTML puro para não depender de seletores CSS frágeis do Streamlit."""
+    import html as _html
+    texto_seguro = _html.escape(str(texto)).replace("\n", "<br>")
+    st.markdown(
+        f'<div class="gei-user-row">'
+        f'<div class="gei-user-bubble">{texto_seguro}</div>'
+        f'</div>',
+        unsafe_allow_html=True,
+    )
+
+
 for i, message in enumerate(st.session_state.messages):
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
-        if message["role"] == "assistant":
-            show_feedback_controls(i)
+    if message["role"] == "user":
+        render_user_bubble(message["content"])
+    else:
+        with st.chat_message("assistant"):
+            st.markdown(message["content"])
 
 user_message = st.chat_input("Faça uma pergunta sobre a Síntese Geral...")
 
@@ -325,8 +527,7 @@ if "prev_question_timestamp" not in st.session_state:
 if user_message:
     user_message = user_message.replace("$", r"\$")
 
-    with st.chat_message("user"):
-        st.text(user_message)
+    render_user_bubble(user_message)
 
     with st.chat_message("assistant"):
         with st.spinner("Aguardando..."):
@@ -358,4 +559,9 @@ if user_message:
             st.session_state.messages.append({"role": "user", "content": user_message})
             st.session_state.messages.append({"role": "assistant", "content": response})
 
-            show_feedback_controls(len(st.session_state.messages) - 1)
+# ---- Rodapé institucional ----
+st.markdown(
+    '<div class="gei-rodape">GEI-line · Secretaria de Estado da Educação · '
+    'Governo do Espírito Santo</div>',
+    unsafe_allow_html=True,
+)
