@@ -19,29 +19,31 @@ st.set_page_config(
     layout="wide",
 )
 
-
-
 # ========================
 # ESTILO VISUAL (IDENTIDADE GOVERNO DO ESPÍRITO SANTO)
 # ========================
-GEI_AZUL = "#0C447C"
-GEI_AZUL_CLARO = "#185FA5"
-GEI_DOURADO = "#EF9F27"
-GEI_VERDE = "#639922"
+# Apenas visual — não altera nenhuma lógica do aplicativo.
+GEI_AZUL = "#0C447C"        # azul institucional
+GEI_AZUL_CLARO = "#185FA5"  # azul de apoio (balão do usuário)
+GEI_DOURADO = "#EF9F27"     # detalhe da bandeira capixaba
+GEI_VERDE = "#639922"       # status / sucesso
 
 st.markdown(
     f"""
     <style>
+    /* ---- Largura central e respiro ---- */
     .block-container {{
         max-width: 880px;
         padding-top: 0rem;
         padding-bottom: 6rem;
         overflow: visible;
     }}
+    /* Garante que o header largo não seja cortado horizontalmente */
     .stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"] {{
         overflow-x: hidden;
     }}
 
+    /* ---- Remove barra nativa do topo sem afetar outros elementos ---- */
     [data-testid="stHeader"] {{
         height: 0 !important;
         min-height: 0 !important;
@@ -49,6 +51,7 @@ st.markdown(
         visibility: hidden !important;
     }}
 
+    /* ---- Header institucional (largura total, sem espaços laterais) ---- */
     .gei-header {{
         background: {GEI_AZUL};
         border-radius: 0;
@@ -128,12 +131,14 @@ st.markdown(
         margin-top: 28px;
     }}
 
+    /* ---- Balões de chat ---- */
     [data-testid="stChatMessage"] {{
         background: transparent;
         padding: 0.25rem 0;
         align-items: flex-start;
     }}
 
+    /* === Mensagem do USUÁRIO: balão azul à DIREITA (HTML próprio) === */
     .gei-user-row {{
         display: flex;
         justify-content: flex-end;
@@ -151,6 +156,7 @@ st.markdown(
         word-wrap: break-word;
     }}
 
+    /* === Mensagem da ASSISTENTE: balão cinza à ESQUERDA === */
     [data-testid="stChatMessage"] [data-testid="stChatMessageContent"] > div:first-child {{
         background: rgba(0,0,0,0.04);
         border-radius: 14px 14px 14px 3px;
@@ -159,11 +165,13 @@ st.markdown(
         max-width: 100%;
     }}
 
+    /* ---- Avatar da assistente ---- */
     [data-testid="stChatMessageAvatarAssistant"] {{
         background: #E6F1FB !important;
         color: {GEI_AZUL} !important;
     }}
 
+    /* ---- Barra de input arredondada ---- */
     [data-testid="stChatInput"] {{
         border-radius: 24px;
         border: 0.5px solid rgba(0,0,0,0.2);
@@ -172,6 +180,7 @@ st.markdown(
         color: rgba(0,0,0,0.4);
     }}
 
+    /* ---- Botão de enviar com cor institucional ---- */
     [data-testid="stChatInputSubmitButton"] {{
         background: {GEI_AZUL} !important;
         color: #fff !important;
@@ -182,6 +191,7 @@ st.markdown(
         color: #fff !important;
     }}
 
+    /* ---- Banner de sucesso mais discreto ---- */
     [data-testid="stAlert"] {{
         border-radius: 10px;
     }}
@@ -194,57 +204,21 @@ st.markdown(
 # CONFIGURAÇÕES
 # ========================
 MODEL = "gpt-4.1-mini"
+
 ARQUIVO_DADOS = "dados/dados.xlsx"
+
 HISTORY_LENGTH = 20
 SUMMARIZE_OLD_HISTORY = False
 MIN_TIME_BETWEEN_REQUESTS = datetime.timedelta(seconds=0)
+
 MAX_LINHAS_CONTEXTO = 80
-
-
-# ========================
-# FUNÇÕES PARA CONSULTA HIERÁRQUICA (NOVO)
-# ========================
-def detectar_codigo_hierarquico(pergunta: str) -> str | None:
-    """
-    Detecta se a pergunta contém um código hierárquico (4, 4.1, 4.3.1, etc.)
-    Retorna o código encontrado ou None
-    """
-    # Padrão: número.número.número... (ex: 4, 4.3, 4.3.1)
-    match = re.search(r'\b(4(?:\.\d+)*)\b', pergunta)
-    return match.group(1) if match else None
-
-
-def buscar_item_hierarquico(dados: dict, codigo: str) -> dict | None:
-    """Busca recursivamente um item no dicionário hierárquico"""
-    if codigo in dados:
-        return dados[codigo]
-    
-    for chave, valor in dados.items():
-        if "subitens" in valor:
-            resultado = buscar_item_hierarquico(valor["subitens"], codigo)
-            if resultado:
-                return resultado
-    return None
-
-
-def formatar_resposta_hierarquica(item: dict, codigo: str) -> str:
-    """Formata a resposta hierárquica de forma legível"""
-    linhas = []
-    linhas.append(f"**{codigo}** - {item['label']}")
-    linhas.append(f"**Quantidade: {item['valor']:,}**\n")
-    
-    if "subitens" in item:
-        linhas.append("**Detalhamento:**\n")
-        for sub_codigo, sub_item in item["subitens"].items():
-            linhas.append(f"- {sub_codigo}: {sub_item['label']} → **{sub_item['valor']:,}**")
-    
-    return "\n".join(linhas)
 
 
 # ========================
 # UTILIDADES DE NORMALIZAÇÃO
 # ========================
 def normalizar(texto: str) -> str:
+    """Remove acentos e lowercase, para comparação robusta."""
     texto = unicodedata.normalize("NFD", str(texto))
     texto = "".join(c for c in texto if unicodedata.category(c) != "Mn")
     return texto.lower()
@@ -269,7 +243,7 @@ def extrair_palavras_chave(pergunta: str) -> set:
 
 
 # ========================
-# CARREGA O EXCEL
+# CARREGA O EXCEL (ESTRUTURADO POR LINHA)
 # ========================
 @st.cache_data
 def carregar_dados_estruturado():
@@ -288,128 +262,54 @@ def carregar_dados_estruturado():
 
         for _, row in df.iterrows():
             ind = row["indicador"]
-            
-            # Extrai código hierárquico (4, 4.1, 4.3.1, etc.)
             m = re.match(r"^([\d.]+)\.\s*(.*)", ind)
-            codigo_hierarquico = m.group(1) if m else ""
-            
-            try:
-                quant_valor = int(float(row["quant"]))
-            except (ValueError, TypeError):
-                continue  # Pula linhas com valores inválidos
-            
+            hierarquia = m.group(1) if m else ""
             linhas.append({
+                "aba": aba,
+                "hierarquia": hierarquia,
                 "indicador": ind,
-                "quant": quant_valor,
-                "hierarquia": codigo_hierarquico,  # Agora é string: "4", "4.1", etc
+                "quant": row["quant"],
                 "busca": normalizar(ind),
             })
-    
     return linhas
 
 
-# ========================
-# FUNÇÕES PARA CONSULTA HIERÁRQUICA DINÂMICA (NOVO)
-# ========================
-def detectar_codigo_hierarquico(pergunta: str) -> str | None:
-    """
-    Detecta se a pergunta contém um código hierárquico (4, 4.1, 4.3.1, etc.)
-    ou se pergunta é sobre "quantidade de alunos"
-    Retorna o código raiz ou None
-    """
-    # Detectar "quantidade de alunos" → retorna "4"
-    # Aceita: aluno, alunos, estudante, estudantes
-    if re.search(r'\b(quantidade|quantos).*(aluno|estudante)s?\b', pergunta.lower()):
-        return "4"
-    
-    # Padrão: número.número.número... (ex: 4, 4.3, 4.4.1)
-    match = re.search(r'\b(\d+(?:\.\d+)*)\b', pergunta)
-    return match.group(1) if match else None
+def filtrar_linhas_relevantes(linhas, pergunta, max_linhas=MAX_LINHAS_CONTEXTO):
+    palavras = extrair_palavras_chave(pergunta)
 
+    if not palavras:
+        return linhas[:max_linhas]
 
-def buscar_itens_hierarquicos(linhas, codigo_raiz: str) -> list:
-    """
-    Busca APENAS os subitens diretos do código raiz (1 nível abaixo)
-    Ex: "4" retorna [4, 4.1, 4.2, 4.3, 4.4, 4.5]
-    Ex: "4.3" retorna [4.3, 4.3.1, 4.3.2, 4.3.3, 4.3.4, 4.3.5, 4.3.6, 4.3.7]
-    """
-    # Encontrar o item principal
-    item_principal = None
-    subitens_diretos = []
-    
+    matches = []
+    for linha in linhas:
+        score = sum(1 for p in palavras if p in linha["busca"])
+        if score > 0:
+            matches.append((score, linha))
+
+    if not matches:
+        return linhas[:max_linhas]
+
+    matches.sort(key=lambda x: -x[0])
+    matches = matches[:max_linhas]
+    selecionadas_ids = {id(m[1]) for m in matches}
+
+    hierarquias_inclusas = {m[1]["hierarquia"] for m in matches}
+    pais_a_incluir = set()
+    for h in hierarquias_inclusas:
+        if not h:
+            continue
+        partes = h.split(".")
+        for i in range(1, len(partes)):
+            pai = ".".join(partes[:i])
+            pais_a_incluir.add(pai)
+
+    resultado_ids = set(selecionadas_ids)
+    resultado = [m[1] for m in matches]
     for l in linhas:
-        if l["hierarquia"] == codigo_raiz:
-            item_principal = l
-        # Subitens diretos: começam com código_raiz + ponto, e têm apenas 1 nível a mais
-        elif l["hierarquia"].startswith(codigo_raiz + "."):
-            # Contar quantos pontos tem a diferença
-            sufixo = l["hierarquia"][len(codigo_raiz) + 1:]  # Remove o código raiz e o ponto
-            # Se tem exatamente 1 ponto, é subitem direto
-            # Se tem 0 pontos, é subitem direto
-            if sufixo.count(".") == 0:  # Sem mais pontos = nível direto
-                subitens_diretos.append(l)
-    
-    # Retornar item principal + subitens diretos
-    resultado = []
-    if item_principal:
-        resultado.append(item_principal)
-    resultado.extend(sorted(subitens_diretos, key=lambda x: x["hierarquia"]))
-    
-    return resultado
-
-
-def formatar_resposta_hierarquica(itens: list, codigo_raiz: str) -> str:
-    """Formata a resposta hierárquica de forma legível"""
-    if not itens:
-        return f"❌ Nenhum dado encontrado para código `{codigo_raiz}`"
-    
-    linhas = []
-    
-    # Item principal (o código raiz exato)
-    item_principal = None
-    for item in itens:
-        if item["hierarquia"] == codigo_raiz:
-            item_principal = item
-            break
-    
-    if item_principal:
-        linhas.append(f"**{item_principal['hierarquia']}** - {item_principal['indicador']}")
-        linhas.append(f"**Quantidade: {item_principal['quant']:,}**\n")
-    
-    # Todos os subitens
-    subitens = [i for i in itens if i["hierarquia"] != codigo_raiz]
-    
-    if subitens:
-        linhas.append("**Detalhamento:**\n")
-        for subitem in subitens:
-            # Remove o prefixo do código e o número para exibição limpa
-            label_limpo = re.sub(r"^[\d.]+\.\s*", "", subitem["indicador"])
-            linhas.append(f"- **{subitem['hierarquia']}**: {label_limpo} → **{subitem['quant']:,}**")
-    
-    return "\n".join(linhas)
-
-
-def filtrar_linhas_relevantes(linhas, pergunta):
-    palavras_chave = extrair_palavras_chave(pergunta)
-    
-    if not palavras_chave:
-        return linhas[:MAX_LINHAS_CONTEXTO]
-    
-    resultado = []
-    resultado_ids = set()
-    
-    for l in linhas:
-        indicador_norm = normalizar(l["indicador"])
-        indicador_palavras = set(re.findall(r"\b[a-z0-9º°ª]+\b", indicador_norm))
-        
-        if palavras_chave & indicador_palavras and id(l) not in resultado_ids:
+        if l["hierarquia"] in pais_a_incluir and id(l) not in resultado_ids:
             resultado.append(l)
             resultado_ids.add(id(l))
-    
-    if not resultado:
-        # Se nenhum match por palavras, retorna primeiras linhas
-        resultado = linhas[:MAX_LINHAS_CONTEXTO]
-    
+
     index_map = {id(l): i for i, l in enumerate(linhas)}
     resultado.sort(key=lambda l: index_map[id(l)])
     return resultado
@@ -426,7 +326,7 @@ def formatar_contexto(linhas_filtradas):
 
 
 # ========================
-# CONTADOR DE TOKENS
+# CONTADOR DE TOKENS (estimativa)
 # ========================
 def estimar_tokens(texto: str) -> int:
     return int(len(texto) / 3.5)
@@ -536,6 +436,7 @@ def get_response_stream(prompt):
 # ========================
 # UI
 # ========================
+# ---- Header institucional (visual) ----
 st.markdown(
     """
     <div class="gei-header">
@@ -574,13 +475,12 @@ if "total_tokens" not in st.session_state:
 if "total_perguntas" not in st.session_state:
     st.session_state.total_perguntas = 0
 
+# ---- Mensagem de apresentação da GEI-line (aparece ao abrir) ----
 if not st.session_state.messages:
     with st.chat_message("assistant"):
         st.markdown(
             "Olá! Eu sou a **GEI-line**, sua assistente virtual da Secretaria da "
-            "Educação.\n\n"
-            "Você pode me perguntar sobre dados de alunos ou perguntar por um código hierárquico "
-            "(ex: **4**, **4.3**, **4.4.1**) para ver o detalhamento completo! 📊"
+            "Educação."
         )
 
 with st.sidebar:
@@ -599,6 +499,8 @@ with st.sidebar:
     st.caption("Estimativa: ~3.5 chars/token")
 
 def render_user_bubble(texto):
+    """Renderiza a mensagem do usuário como balão azul alinhado à direita.
+    Usa HTML puro para não depender de seletores CSS frágeis do Streamlit."""
     import html as _html
     texto_seguro = _html.escape(str(texto)).replace("\n", "<br>")
     st.markdown(
@@ -616,53 +518,45 @@ for i, message in enumerate(st.session_state.messages):
         with st.chat_message("assistant"):
             st.markdown(message["content"])
 
-user_message = st.chat_input("Faça uma pergunta sobre a Síntese Geral ou digite um código (ex: 4, 4.3)...")
+user_message = st.chat_input("Faça uma pergunta sobre a Síntese Geral...")
 
 if "prev_question_timestamp" not in st.session_state:
     st.session_state.prev_question_timestamp = datetime.datetime.fromtimestamp(0)
 
 if user_message:
     user_message = user_message.replace("$", r"\$")
+
     render_user_bubble(user_message)
 
     with st.chat_message("assistant"):
-        # Detectar se é consulta hierárquica
-        codigo_detectado = detectar_codigo_hierarquico(user_message)
-        
-        if codigo_detectado:
-            # *** FLUXO DE CONSULTA HIERÁRQUICA DINÂMICA (NOVO) ***
-            itens = buscar_itens_hierarquicos(linhas_planilha, codigo_detectado)
-            
-            if itens:
-                response = formatar_resposta_hierarquica(itens, codigo_detectado)
-                st.markdown(response)
-                tokens_resposta = estimar_tokens(response)
-                st.caption(f"🔢 Tokens: **{tokens_resposta:,}** | 📋 Consulta hierárquica")
-            else:
-                response = f"❌ Código hierárquico `{codigo_detectado}` não encontrado nos dados."
-                st.markdown(response)
-        else:
-            # *** FLUXO NORMAL (PLANILHA + GPT) ***
-            with st.spinner("Filtrando dados relevantes..."):
-                full_prompt, n_linhas = build_question_prompt(user_message, linhas_planilha)
-                tokens_prompt = estimar_tokens(full_prompt)
+        with st.spinner("Aguardando..."):
+            now = datetime.datetime.now()
+            diff = now - st.session_state.prev_question_timestamp
+            st.session_state.prev_question_timestamp = now
+            if diff < MIN_TIME_BETWEEN_REQUESTS:
+                time.sleep(diff.seconds + diff.microseconds * 0.001)
 
-            with st.container():
-                response = st.write_stream(get_response_stream(full_prompt))
-                tokens_resposta = estimar_tokens(response)
-                tokens_total = tokens_prompt + tokens_resposta
+        with st.spinner("Filtrando dados relevantes..."):
+            full_prompt, n_linhas = build_question_prompt(user_message, linhas_planilha)
+            tokens_prompt = estimar_tokens(full_prompt)
 
-                st.session_state.total_tokens += tokens_total
-                st.session_state.total_perguntas += 1
+        with st.container():
+            response = st.write_stream(get_response_stream(full_prompt))
 
-                st.caption(
-                    f"🔢 Tokens: **{tokens_total:,}** "
-                    f"(entrada: {tokens_prompt:,} | saída: {tokens_resposta:,}) | "
-                    f"📋 {n_linhas} indicadores enviados de {len(linhas_planilha)}"
-                )
+            tokens_resposta = estimar_tokens(response)
+            tokens_total = tokens_prompt + tokens_resposta
 
-        st.session_state.messages.append({"role": "user", "content": user_message})
-        st.session_state.messages.append({"role": "assistant", "content": response})
+            st.session_state.total_tokens += tokens_total
+            st.session_state.total_perguntas += 1
+
+            st.caption(
+                f"🔢 Tokens: **{tokens_total:,}** "
+                f"(entrada: {tokens_prompt:,} | saída: {tokens_resposta:,}) | "
+                f"📋 {n_linhas} indicadores enviados de {len(linhas_planilha)}"
+            )
+
+            st.session_state.messages.append({"role": "user", "content": user_message})
+            st.session_state.messages.append({"role": "assistant", "content": response})
 
 # ---- Rodapé institucional ----
 st.markdown(
