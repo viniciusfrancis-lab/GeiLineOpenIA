@@ -20,30 +20,99 @@ st.set_page_config(
 )
 
 # ========================
+# DADOS HIERÁRQUICOS DE ALUNOS (NOVO)
+# ========================
+DADOS_HIERARQUICOS = {
+    "4": {
+        "label": "Quantidade de alunos",
+        "valor": 184_839,
+        "subitens": {
+            "4.1": {
+                "label": "Quantidade de alunos no Atendimento Educacional Especializado - AEE",
+                "valor": 9_090
+            },
+            "4.2": {
+                "label": "Quantidade de alunos no Atendimento Complementar - AC",
+                "valor": 11_958
+            },
+            "4.3": {
+                "label": "Quantidade de alunos no Ensino Regular",
+                "valor": 184_593,
+                "subitens": {
+                    "4.3.1": {"label": "Quantidade de alunos no turno Manhã", "valor": 51_938},
+                    "4.3.2": {"label": "Quantidade de alunos no turno Tarde", "valor": 48_983},
+                    "4.3.3": {"label": "Quantidade de alunos no turno Noite", "valor": 13_255},
+                    "4.3.4": {"label": "Quantidade de alunos no turno Integral 7h - Manhã", "valor": 48_989},
+                    "4.3.5": {"label": "Quantidade de alunos no turno Integral 7h - Tarde", "valor": 15_270},
+                    "4.3.6": {"label": "Quantidade de alunos no turno Integral 8h", "valor": 170},
+                    "4.3.7": {"label": "Quantidade de alunos no turno Integral 9h30min", "valor": 6_353},
+                }
+            },
+            "4.4": {
+                "label": "Quantidade de alunos no Ensino Fundamental",
+                "valor": 63_543,
+                "subitens": {
+                    "4.4.1": {
+                        "label": "Quantidade de alunos no Ensino Fundamental - Anos Iniciais",
+                        "valor": 10_859,
+                        "subitens": {
+                            "4.4.1.1": {"label": "1º ano do Ensino Fundamental - Anos Iniciais", "valor": 1_950},
+                            "4.4.1.2": {"label": "2º ano do Ensino Fundamental - Anos Iniciais", "valor": 2_155},
+                            "4.4.1.3": {"label": "3º ano do Ensino Fundamental - Anos Iniciais", "valor": 2_141},
+                            "4.4.1.4": {"label": "4º ano do Ensino Fundamental - Anos Iniciais", "valor": 2_138},
+                            "4.4.1.5": {"label": "5º ano do Ensino Fundamental - Anos Iniciais", "valor": 2_475},
+                        }
+                    },
+                    "4.4.2": {
+                        "label": "Quantidade de alunos no Ensino Fundamental - Anos Finais",
+                        "valor": 52_684,
+                        "subitens": {
+                            "4.4.2.1": {"label": "6º ano do Ensino Fundamental - Anos Finais", "valor": 12_305},
+                            "4.4.2.2": {"label": "7º ano do Ensino Fundamental - Anos Finais", "valor": 12_548},
+                            "4.4.2.3": {"label": "8º ano do Ensino Fundamental - Anos Finais", "valor": 13_198},
+                            "4.4.2.4": {"label": "9º ano do Ensino Fundamental - Anos Finais", "valor": 14_633},
+                        }
+                    },
+                }
+            },
+            "4.5": {
+                "label": "Quantidade de alunos no Ensino Médio",
+                "valor": 107_366,
+                "subitens": {
+                    "4.5.1": {
+                        "label": "Quantidade de alunos no Ensino Médio Regular",
+                        "valor": 81_894,
+                        "subitens": {
+                            "4.5.1.1": {"label": "1ª série do Ensino Médio", "valor": 30_382},
+                        }
+                    },
+                }
+            },
+        }
+    }
+}
+
+# ========================
 # ESTILO VISUAL (IDENTIDADE GOVERNO DO ESPÍRITO SANTO)
 # ========================
-# Apenas visual — não altera nenhuma lógica do aplicativo.
-GEI_AZUL = "#0C447C"        # azul institucional
-GEI_AZUL_CLARO = "#185FA5"  # azul de apoio (balão do usuário)
-GEI_DOURADO = "#EF9F27"     # detalhe da bandeira capixaba
-GEI_VERDE = "#639922"       # status / sucesso
+GEI_AZUL = "#0C447C"
+GEI_AZUL_CLARO = "#185FA5"
+GEI_DOURADO = "#EF9F27"
+GEI_VERDE = "#639922"
 
 st.markdown(
     f"""
     <style>
-    /* ---- Largura central e respiro ---- */
     .block-container {{
         max-width: 880px;
         padding-top: 0rem;
         padding-bottom: 6rem;
         overflow: visible;
     }}
-    /* Garante que o header largo não seja cortado horizontalmente */
     .stApp, [data-testid="stAppViewContainer"], [data-testid="stMain"] {{
         overflow-x: hidden;
     }}
 
-    /* ---- Remove barra nativa do topo sem afetar outros elementos ---- */
     [data-testid="stHeader"] {{
         height: 0 !important;
         min-height: 0 !important;
@@ -51,7 +120,6 @@ st.markdown(
         visibility: hidden !important;
     }}
 
-    /* ---- Header institucional (largura total, sem espaços laterais) ---- */
     .gei-header {{
         background: {GEI_AZUL};
         border-radius: 0;
@@ -131,14 +199,12 @@ st.markdown(
         margin-top: 28px;
     }}
 
-    /* ---- Balões de chat ---- */
     [data-testid="stChatMessage"] {{
         background: transparent;
         padding: 0.25rem 0;
         align-items: flex-start;
     }}
 
-    /* === Mensagem do USUÁRIO: balão azul à DIREITA (HTML próprio) === */
     .gei-user-row {{
         display: flex;
         justify-content: flex-end;
@@ -156,7 +222,6 @@ st.markdown(
         word-wrap: break-word;
     }}
 
-    /* === Mensagem da ASSISTENTE: balão cinza à ESQUERDA === */
     [data-testid="stChatMessage"] [data-testid="stChatMessageContent"] > div:first-child {{
         background: rgba(0,0,0,0.04);
         border-radius: 14px 14px 14px 3px;
@@ -165,13 +230,11 @@ st.markdown(
         max-width: 100%;
     }}
 
-    /* ---- Avatar da assistente ---- */
     [data-testid="stChatMessageAvatarAssistant"] {{
         background: #E6F1FB !important;
         color: {GEI_AZUL} !important;
     }}
 
-    /* ---- Barra de input arredondada ---- */
     [data-testid="stChatInput"] {{
         border-radius: 24px;
         border: 0.5px solid rgba(0,0,0,0.2);
@@ -180,7 +243,6 @@ st.markdown(
         color: rgba(0,0,0,0.4);
     }}
 
-    /* ---- Botão de enviar com cor institucional ---- */
     [data-testid="stChatInputSubmitButton"] {{
         background: {GEI_AZUL} !important;
         color: #fff !important;
@@ -191,7 +253,6 @@ st.markdown(
         color: #fff !important;
     }}
 
-    /* ---- Banner de sucesso mais discreto ---- */
     [data-testid="stAlert"] {{
         border-radius: 10px;
     }}
@@ -204,21 +265,57 @@ st.markdown(
 # CONFIGURAÇÕES
 # ========================
 MODEL = "gpt-4.1-mini"
-
 ARQUIVO_DADOS = "dados/dados.xlsx"
-
 HISTORY_LENGTH = 20
 SUMMARIZE_OLD_HISTORY = False
 MIN_TIME_BETWEEN_REQUESTS = datetime.timedelta(seconds=0)
-
 MAX_LINHAS_CONTEXTO = 80
+
+
+# ========================
+# FUNÇÕES PARA CONSULTA HIERÁRQUICA (NOVO)
+# ========================
+def detectar_codigo_hierarquico(pergunta: str) -> str | None:
+    """
+    Detecta se a pergunta contém um código hierárquico (4, 4.1, 4.3.1, etc.)
+    Retorna o código encontrado ou None
+    """
+    # Padrão: número.número.número... (ex: 4, 4.3, 4.3.1)
+    match = re.search(r'\b(4(?:\.\d+)*)\b', pergunta)
+    return match.group(1) if match else None
+
+
+def buscar_item_hierarquico(dados: dict, codigo: str) -> dict | None:
+    """Busca recursivamente um item no dicionário hierárquico"""
+    if codigo in dados:
+        return dados[codigo]
+    
+    for chave, valor in dados.items():
+        if "subitens" in valor:
+            resultado = buscar_item_hierarquico(valor["subitens"], codigo)
+            if resultado:
+                return resultado
+    return None
+
+
+def formatar_resposta_hierarquica(item: dict, codigo: str) -> str:
+    """Formata a resposta hierárquica de forma legível"""
+    linhas = []
+    linhas.append(f"**{codigo}** - {item['label']}")
+    linhas.append(f"**Quantidade: {item['valor']:,}**\n")
+    
+    if "subitens" in item:
+        linhas.append("**Detalhamento:**\n")
+        for sub_codigo, sub_item in item["subitens"].items():
+            linhas.append(f"- {sub_codigo}: {sub_item['label']} → **{sub_item['valor']:,}**")
+    
+    return "\n".join(linhas)
 
 
 # ========================
 # UTILIDADES DE NORMALIZAÇÃO
 # ========================
 def normalizar(texto: str) -> str:
-    """Remove acentos e lowercase, para comparação robusta."""
     texto = unicodedata.normalize("NFD", str(texto))
     texto = "".join(c for c in texto if unicodedata.category(c) != "Mn")
     return texto.lower()
@@ -243,7 +340,7 @@ def extrair_palavras_chave(pergunta: str) -> set:
 
 
 # ========================
-# CARREGA O EXCEL (ESTRUTURADO POR LINHA)
+# CARREGA O EXCEL
 # ========================
 @st.cache_data
 def carregar_dados_estruturado():
@@ -253,63 +350,53 @@ def carregar_dados_estruturado():
         df = xl.parse(aba, header=None)
         df = df.iloc[:, -2:]
         df.columns = ["indicador", "quant"]
-
         df = df.dropna(subset=["indicador", "quant"], how="any")
         df["indicador"] = df["indicador"].astype(str).str.strip()
-        df["quant"] = df["quant"].astype(str).str.strip()
-        df = df[(df["quant"] != "") & (df["quant"] != "nan")]
-        df = df[df["indicador"].str.lower() != "indicador"]
-
+        df["quant"] = pd.to_numeric(df["quant"], errors="coerce")
+        
         for _, row in df.iterrows():
             ind = row["indicador"]
-            m = re.match(r"^([\d.]+)\.\s*(.*)", ind)
-            hierarquia = m.group(1) if m else ""
+            quant = row["quant"]
+            
+            partes = ind.split(" > ")
+            hierarquia = [p.strip() for p in partes]
+            
             linhas.append({
-                "aba": aba,
-                "hierarquia": hierarquia,
                 "indicador": ind,
-                "quant": row["quant"],
-                "busca": normalizar(ind),
+                "quant": int(quant),
+                "hierarquia": hierarquia,
             })
+    
     return linhas
 
 
-def filtrar_linhas_relevantes(linhas, pergunta, max_linhas=MAX_LINHAS_CONTEXTO):
-    palavras = extrair_palavras_chave(pergunta)
-
-    if not palavras:
-        return linhas[:max_linhas]
-
-    matches = []
-    for linha in linhas:
-        score = sum(1 for p in palavras if p in linha["busca"])
-        if score > 0:
-            matches.append((score, linha))
-
-    if not matches:
-        return linhas[:max_linhas]
-
-    matches.sort(key=lambda x: -x[0])
-    matches = matches[:max_linhas]
-    selecionadas_ids = {id(m[1]) for m in matches}
-
-    hierarquias_inclusas = {m[1]["hierarquia"] for m in matches}
-    pais_a_incluir = set()
-    for h in hierarquias_inclusas:
-        if not h:
-            continue
-        partes = h.split(".")
-        for i in range(1, len(partes)):
-            pai = ".".join(partes[:i])
-            pais_a_incluir.add(pai)
-
-    resultado_ids = set(selecionadas_ids)
-    resultado = [m[1] for m in matches]
+def filtrar_linhas_relevantes(linhas, pergunta):
+    palavras_chave = extrair_palavras_chave(pergunta)
+    
+    if not palavras_chave:
+        return linhas[:MAX_LINHAS_CONTEXTO]
+    
+    resultado = []
+    resultado_ids = set()
+    
     for l in linhas:
-        if l["hierarquia"] in pais_a_incluir and id(l) not in resultado_ids:
+        indicador_norm = normalizar(l["indicador"])
+        indicador_palavras = set(re.findall(r"\b[a-z0-9º°ª]+\b", indicador_norm))
+        
+        if palavras_chave & indicador_palavras and id(l) not in resultado_ids:
             resultado.append(l)
             resultado_ids.add(id(l))
-
+    
+    if not resultado:
+        pais_a_incluir = set()
+        for l in linhas:
+            pais_a_incluir.add(tuple(l["hierarquia"][:1]))
+        
+        for l in linhas:
+            if l["hierarquia"] in pais_a_incluir and id(l) not in resultado_ids:
+                resultado.append(l)
+                resultado_ids.add(id(l))
+    
     index_map = {id(l): i for i, l in enumerate(linhas)}
     resultado.sort(key=lambda l: index_map[id(l)])
     return resultado
@@ -326,7 +413,7 @@ def formatar_contexto(linhas_filtradas):
 
 
 # ========================
-# CONTADOR DE TOKENS (estimativa)
+# CONTADOR DE TOKENS
 # ========================
 def estimar_tokens(texto: str) -> int:
     return int(len(texto) / 3.5)
@@ -436,7 +523,6 @@ def get_response_stream(prompt):
 # ========================
 # UI
 # ========================
-# ---- Header institucional (visual) ----
 st.markdown(
     """
     <div class="gei-header">
@@ -475,12 +561,13 @@ if "total_tokens" not in st.session_state:
 if "total_perguntas" not in st.session_state:
     st.session_state.total_perguntas = 0
 
-# ---- Mensagem de apresentação da GEI-line (aparece ao abrir) ----
 if not st.session_state.messages:
     with st.chat_message("assistant"):
         st.markdown(
             "Olá! Eu sou a **GEI-line**, sua assistente virtual da Secretaria da "
-            "Educação."
+            "Educação.\n\n"
+            "Você pode me perguntar sobre dados de alunos ou perguntar por um código hierárquico "
+            "(ex: **4**, **4.3**, **4.4.1**) para ver o detalhamento completo! 📊"
         )
 
 with st.sidebar:
@@ -499,8 +586,6 @@ with st.sidebar:
     st.caption("Estimativa: ~3.5 chars/token")
 
 def render_user_bubble(texto):
-    """Renderiza a mensagem do usuário como balão azul alinhado à direita.
-    Usa HTML puro para não depender de seletores CSS frágeis do Streamlit."""
     import html as _html
     texto_seguro = _html.escape(str(texto)).replace("\n", "<br>")
     st.markdown(
@@ -518,45 +603,53 @@ for i, message in enumerate(st.session_state.messages):
         with st.chat_message("assistant"):
             st.markdown(message["content"])
 
-user_message = st.chat_input("Faça uma pergunta sobre a Síntese Geral...")
+user_message = st.chat_input("Faça uma pergunta sobre a Síntese Geral ou digite um código (ex: 4, 4.3)...")
 
 if "prev_question_timestamp" not in st.session_state:
     st.session_state.prev_question_timestamp = datetime.datetime.fromtimestamp(0)
 
 if user_message:
     user_message = user_message.replace("$", r"\$")
-
     render_user_bubble(user_message)
 
     with st.chat_message("assistant"):
-        with st.spinner("Aguardando..."):
-            now = datetime.datetime.now()
-            diff = now - st.session_state.prev_question_timestamp
-            st.session_state.prev_question_timestamp = now
-            if diff < MIN_TIME_BETWEEN_REQUESTS:
-                time.sleep(diff.seconds + diff.microseconds * 0.001)
+        # Detectar se é consulta hierárquica
+        codigo_detectado = detectar_codigo_hierarquico(user_message)
+        
+        if codigo_detectado:
+            # *** FLUXO DE CONSULTA HIERÁRQUICA (NOVO) ***
+            item = buscar_item_hierarquico(DADOS_HIERARQUICOS, codigo_detectado)
+            
+            if item:
+                response = formatar_resposta_hierarquica(item, codigo_detectado)
+                st.markdown(response)
+                tokens_resposta = estimar_tokens(response)
+                st.caption(f"🔢 Tokens: **{tokens_resposta:,}** | 📋 Consulta hierárquica")
+            else:
+                response = f"❌ Código hierárquico `{codigo_detectado}` não encontrado nos dados."
+                st.markdown(response)
+        else:
+            # *** FLUXO NORMAL (PLANILHA + GPT) ***
+            with st.spinner("Filtrando dados relevantes..."):
+                full_prompt, n_linhas = build_question_prompt(user_message, linhas_planilha)
+                tokens_prompt = estimar_tokens(full_prompt)
 
-        with st.spinner("Filtrando dados relevantes..."):
-            full_prompt, n_linhas = build_question_prompt(user_message, linhas_planilha)
-            tokens_prompt = estimar_tokens(full_prompt)
+            with st.container():
+                response = st.write_stream(get_response_stream(full_prompt))
+                tokens_resposta = estimar_tokens(response)
+                tokens_total = tokens_prompt + tokens_resposta
 
-        with st.container():
-            response = st.write_stream(get_response_stream(full_prompt))
+                st.session_state.total_tokens += tokens_total
+                st.session_state.total_perguntas += 1
 
-            tokens_resposta = estimar_tokens(response)
-            tokens_total = tokens_prompt + tokens_resposta
+                st.caption(
+                    f"🔢 Tokens: **{tokens_total:,}** "
+                    f"(entrada: {tokens_prompt:,} | saída: {tokens_resposta:,}) | "
+                    f"📋 {n_linhas} indicadores enviados de {len(linhas_planilha)}"
+                )
 
-            st.session_state.total_tokens += tokens_total
-            st.session_state.total_perguntas += 1
-
-            st.caption(
-                f"🔢 Tokens: **{tokens_total:,}** "
-                f"(entrada: {tokens_prompt:,} | saída: {tokens_resposta:,}) | "
-                f"📋 {n_linhas} indicadores enviados de {len(linhas_planilha)}"
-            )
-
-            st.session_state.messages.append({"role": "user", "content": user_message})
-            st.session_state.messages.append({"role": "assistant", "content": response})
+        st.session_state.messages.append({"role": "user", "content": user_message})
+        st.session_state.messages.append({"role": "assistant", "content": response})
 
 # ---- Rodapé institucional ----
 st.markdown(
