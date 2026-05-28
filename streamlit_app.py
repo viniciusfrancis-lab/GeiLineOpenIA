@@ -207,7 +207,7 @@ MODEL = "gpt-4.1-mini"
 
 ARQUIVO_DADOS = "dados/dados.xlsx"
 
-HISTORY_LENGTH = 15
+HISTORY_LENGTH = 20
 SUMMARIZE_OLD_HISTORY = False
 MIN_TIME_BETWEEN_REQUESTS = datetime.timedelta(seconds=2)
 
@@ -369,7 +369,7 @@ def generate_chat_summary(messages):
     client = get_client()
     response = client.chat.completions.create(
         model=MODEL,
-        max_tokens=512,
+        max_tokens=1512,
         messages=[{"role": "user", "content": prompt}],
     )
     return response.choices[0].message.content
