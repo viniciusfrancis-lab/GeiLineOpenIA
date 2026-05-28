@@ -209,7 +209,7 @@ ARQUIVO_DADOS = "dados/dados.xlsx"
 
 HISTORY_LENGTH = 20
 SUMMARIZE_OLD_HISTORY = False
-MIN_TIME_BETWEEN_REQUESTS = datetime.timedelta(seconds=2)
+MIN_TIME_BETWEEN_REQUESTS = datetime.timedelta(seconds=0)
 
 MAX_LINHAS_CONTEXTO = 80
 
@@ -369,7 +369,7 @@ def generate_chat_summary(messages):
     client = get_client()
     response = client.chat.completions.create(
         model=MODEL,
-        max_tokens=1512,
+        max_tokens=5120,
         messages=[{"role": "user", "content": prompt}],
     )
     return response.choices[0].message.content
