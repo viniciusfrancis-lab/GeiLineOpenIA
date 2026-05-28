@@ -350,20 +350,27 @@ def carregar_dados_estruturado():
         df = xl.parse(aba, header=None)
         df = df.iloc[:, -2:]
         df.columns = ["indicador", "quant"]
+
         df = df.dropna(subset=["indicador", "quant"], how="any")
         df["indicador"] = df["indicador"].astype(str).str.strip()
-        df["quant"] = pd.to_numeric(df["quant"], errors="coerce")
-        
+        df["quant"] = df["quant"].astype(str).str.strip()
+        df = df[(df["quant"] != "") & (df["quant"] != "nan")]
+        df = df[df["indicador"].str.lower() != "indicador"]
+
         for _, row in df.iterrows():
             ind = row["indicador"]
-            quant = row["quant"]
             
             partes = ind.split(" > ")
             hierarquia = [p.strip() for p in partes]
             
+            try:
+                quant_valor = int(float(row["quant"]))
+            except (ValueError, TypeError):
+                continue  # Pula linhas com valores inválidos
+            
             linhas.append({
                 "indicador": ind,
-                "quant": int(quant),
+                "quant": quant_valor,
                 "hierarquia": hierarquia,
             })
     
