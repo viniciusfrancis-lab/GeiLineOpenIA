@@ -34,7 +34,11 @@ st.markdown(
     /* ---- Largura central e respiro ---- */
     .block-container {{
         max-width: 880px;
+<<<<<<< HEAD
+        padding-top: 3rem;
+=======
         padding-top: 0rem;
+>>>>>>> ad7dabe (ajuste header full width)
         padding-bottom: 6rem;
         overflow: visible;
     }}
@@ -43,6 +47,24 @@ st.markdown(
         overflow-x: hidden;
     }}
 
+<<<<<<< HEAD
+    /* ---- Esconde o título e o caption nativos (substituídos pelo header) ---- */
+    /* (mantidos no código, mas ocultados visualmente para não duplicar) */
+
+    /* ---- Header institucional (largura total, ~1cm de borda lateral) ---- */
+    .gei-header {{
+        background: {GEI_AZUL};
+        border-radius: 14px 14px 0 0;
+        padding: 18px 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: calc(100vw - 76px);
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-top: 12px;
+=======
     /* ---- Remove barra nativa do topo sem afetar outros elementos ---- */
     [data-testid="stHeader"] {{
         height: 0 !important;
@@ -65,6 +87,7 @@ st.markdown(
         transform: translateX(-50%);
         margin-top: 0;
         box-sizing: border-box;
+>>>>>>> ad7dabe (ajuste header full width)
     }}
     .gei-header-left {{
         display: flex;
@@ -118,11 +141,18 @@ st.markdown(
         background: {GEI_DOURADO};
         border-radius: 0;
         margin-bottom: 18px;
+<<<<<<< HEAD
+        width: calc(100vw - 76px);
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+=======
         width: 100vw;
         position: relative;
         left: 50%;
         transform: translateX(-50%);
         box-sizing: border-box;
+>>>>>>> ad7dabe (ajuste header full width)
     }}
     .gei-rodape {{
         text-align: center;
@@ -207,11 +237,10 @@ MODEL = "gpt-4.1-mini"
 
 ARQUIVO_DADOS = "dados/dados.xlsx"
 
-HISTORY_LENGTH = 5
+HISTORY_LENGTH = 20
 SUMMARIZE_OLD_HISTORY = False
 MIN_TIME_BETWEEN_REQUESTS = datetime.timedelta(seconds=2)
-
-MAX_LINHAS_CONTEXTO = 500
+MAX_LINHAS_CONTEXTO = 20
 
 
 # ========================
@@ -480,8 +509,7 @@ if not st.session_state.messages:
     with st.chat_message("assistant"):
         st.markdown(
             "Olá! Eu sou a **GEI-line**, sua assistente virtual da Secretaria da "
-            "Educação. Posso ajudar você a consultar os indicadores da Síntese Geral "
-            "da rede estadual. É só digitar sua pergunta abaixo."
+            "Educação."
         )
 
 with st.sidebar:
