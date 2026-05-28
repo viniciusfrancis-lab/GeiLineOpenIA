@@ -19,78 +19,7 @@ st.set_page_config(
     layout="wide",
 )
 
-# ========================
-# DADOS HIERÁRQUICOS DE ALUNOS (NOVO)
-# ========================
-DADOS_HIERARQUICOS = {
-    "4": {
-        "label": "Quantidade de alunos",
-        "valor": 184_839,
-        "subitens": {
-            "4.1": {
-                "label": "Quantidade de alunos no Atendimento Educacional Especializado - AEE",
-                "valor": 9_090
-            },
-            "4.2": {
-                "label": "Quantidade de alunos no Atendimento Complementar - AC",
-                "valor": 11_958
-            },
-            "4.3": {
-                "label": "Quantidade de alunos no Ensino Regular",
-                "valor": 184_593,
-                "subitens": {
-                    "4.3.1": {"label": "Quantidade de alunos no turno Manhã", "valor": 51_938},
-                    "4.3.2": {"label": "Quantidade de alunos no turno Tarde", "valor": 48_983},
-                    "4.3.3": {"label": "Quantidade de alunos no turno Noite", "valor": 13_255},
-                    "4.3.4": {"label": "Quantidade de alunos no turno Integral 7h - Manhã", "valor": 48_989},
-                    "4.3.5": {"label": "Quantidade de alunos no turno Integral 7h - Tarde", "valor": 15_270},
-                    "4.3.6": {"label": "Quantidade de alunos no turno Integral 8h", "valor": 170},
-                    "4.3.7": {"label": "Quantidade de alunos no turno Integral 9h30min", "valor": 6_353},
-                }
-            },
-            "4.4": {
-                "label": "Quantidade de alunos no Ensino Fundamental",
-                "valor": 63_543,
-                "subitens": {
-                    "4.4.1": {
-                        "label": "Quantidade de alunos no Ensino Fundamental - Anos Iniciais",
-                        "valor": 10_859,
-                        "subitens": {
-                            "4.4.1.1": {"label": "1º ano do Ensino Fundamental - Anos Iniciais", "valor": 1_950},
-                            "4.4.1.2": {"label": "2º ano do Ensino Fundamental - Anos Iniciais", "valor": 2_155},
-                            "4.4.1.3": {"label": "3º ano do Ensino Fundamental - Anos Iniciais", "valor": 2_141},
-                            "4.4.1.4": {"label": "4º ano do Ensino Fundamental - Anos Iniciais", "valor": 2_138},
-                            "4.4.1.5": {"label": "5º ano do Ensino Fundamental - Anos Iniciais", "valor": 2_475},
-                        }
-                    },
-                    "4.4.2": {
-                        "label": "Quantidade de alunos no Ensino Fundamental - Anos Finais",
-                        "valor": 52_684,
-                        "subitens": {
-                            "4.4.2.1": {"label": "6º ano do Ensino Fundamental - Anos Finais", "valor": 12_305},
-                            "4.4.2.2": {"label": "7º ano do Ensino Fundamental - Anos Finais", "valor": 12_548},
-                            "4.4.2.3": {"label": "8º ano do Ensino Fundamental - Anos Finais", "valor": 13_198},
-                            "4.4.2.4": {"label": "9º ano do Ensino Fundamental - Anos Finais", "valor": 14_633},
-                        }
-                    },
-                }
-            },
-            "4.5": {
-                "label": "Quantidade de alunos no Ensino Médio",
-                "valor": 107_366,
-                "subitens": {
-                    "4.5.1": {
-                        "label": "Quantidade de alunos no Ensino Médio Regular",
-                        "valor": 81_894,
-                        "subitens": {
-                            "4.5.1.1": {"label": "1ª série do Ensino Médio", "valor": 30_382},
-                        }
-                    },
-                }
-            },
-        }
-    }
-}
+
 
 # ========================
 # ESTILO VISUAL (IDENTIDADE GOVERNO DO ESPÍRITO SANTO)
@@ -360,8 +289,9 @@ def carregar_dados_estruturado():
         for _, row in df.iterrows():
             ind = row["indicador"]
             
-            partes = ind.split(" > ")
-            hierarquia = [p.strip() for p in partes]
+            # Extrai código hierárquico (4, 4.1, 4.3.1, etc.)
+            m = re.match(r"^([\d.]+)\.\s*(.*)", ind)
+            codigo_hierarquico = m.group(1) if m else ""
             
             try:
                 quant_valor = int(float(row["quant"]))
@@ -371,10 +301,91 @@ def carregar_dados_estruturado():
             linhas.append({
                 "indicador": ind,
                 "quant": quant_valor,
-                "hierarquia": hierarquia,
+                "hierarquia": codigo_hierarquico,  # Agora é string: "4", "4.1", etc
+                "busca": normalizar(ind),
             })
     
     return linhas
+
+
+# ========================
+# FUNÇÕES PARA CONSULTA HIERÁRQUICA DINÂMICA (NOVO)
+# ========================
+def detectar_codigo_hierarquico(pergunta: str) -> str | None:
+    """
+    Detecta se a pergunta contém um código hierárquico (4, 4.1, 4.3.1, etc.)
+    ou se pergunta é sobre "quantidade de alunos"
+    Retorna o código raiz ou None
+    """
+    # Detectar "quantidade de alunos" → retorna "4"
+    if re.search(r'\b(quantidade|quantos).*(aluno|estudante)\b', pergunta.lower()):
+        return "4"
+    
+    # Padrão: número.número.número... (ex: 4, 4.3, 4.4.1)
+    match = re.search(r'\b(\d+(?:\.\d+)*)\b', pergunta)
+    return match.group(1) if match else None
+
+
+def buscar_itens_hierarquicos(linhas, codigo_raiz: str) -> list:
+    """
+    Busca APENAS os subitens diretos do código raiz (1 nível abaixo)
+    Ex: "4" retorna [4, 4.1, 4.2, 4.3, 4.4, 4.5]
+    Ex: "4.3" retorna [4.3, 4.3.1, 4.3.2, 4.3.3, 4.3.4, 4.3.5, 4.3.6, 4.3.7]
+    """
+    # Encontrar o item principal
+    item_principal = None
+    subitens_diretos = []
+    
+    for l in linhas:
+        if l["hierarquia"] == codigo_raiz:
+            item_principal = l
+        # Subitens diretos: começam com código_raiz + ponto, e têm apenas 1 nível a mais
+        elif l["hierarquia"].startswith(codigo_raiz + "."):
+            # Contar quantos pontos tem a diferença
+            sufixo = l["hierarquia"][len(codigo_raiz) + 1:]  # Remove o código raiz e o ponto
+            # Se tem exatamente 1 ponto, é subitem direto
+            # Se tem 0 pontos, é subitem direto
+            if sufixo.count(".") == 0:  # Sem mais pontos = nível direto
+                subitens_diretos.append(l)
+    
+    # Retornar item principal + subitens diretos
+    resultado = []
+    if item_principal:
+        resultado.append(item_principal)
+    resultado.extend(sorted(subitens_diretos, key=lambda x: x["hierarquia"]))
+    
+    return resultado
+
+
+def formatar_resposta_hierarquica(itens: list, codigo_raiz: str) -> str:
+    """Formata a resposta hierárquica de forma legível"""
+    if not itens:
+        return f"❌ Nenhum dado encontrado para código `{codigo_raiz}`"
+    
+    linhas = []
+    
+    # Item principal (o código raiz exato)
+    item_principal = None
+    for item in itens:
+        if item["hierarquia"] == codigo_raiz:
+            item_principal = item
+            break
+    
+    if item_principal:
+        linhas.append(f"**{item_principal['hierarquia']}** - {item_principal['indicador']}")
+        linhas.append(f"**Quantidade: {item_principal['quant']:,}**\n")
+    
+    # Todos os subitens
+    subitens = [i for i in itens if i["hierarquia"] != codigo_raiz]
+    
+    if subitens:
+        linhas.append("**Detalhamento:**\n")
+        for subitem in subitens:
+            # Remove o prefixo do código e o número para exibição limpa
+            label_limpo = re.sub(r"^[\d.]+\.\s*", "", subitem["indicador"])
+            linhas.append(f"- **{subitem['hierarquia']}**: {label_limpo} → **{subitem['quant']:,}**")
+    
+    return "\n".join(linhas)
 
 
 def filtrar_linhas_relevantes(linhas, pergunta):
@@ -395,14 +406,8 @@ def filtrar_linhas_relevantes(linhas, pergunta):
             resultado_ids.add(id(l))
     
     if not resultado:
-        pais_a_incluir = set()
-        for l in linhas:
-            pais_a_incluir.add(tuple(l["hierarquia"][:1]))
-        
-        for l in linhas:
-            if l["hierarquia"] in pais_a_incluir and id(l) not in resultado_ids:
-                resultado.append(l)
-                resultado_ids.add(id(l))
+        # Se nenhum match por palavras, retorna primeiras linhas
+        resultado = linhas[:MAX_LINHAS_CONTEXTO]
     
     index_map = {id(l): i for i, l in enumerate(linhas)}
     resultado.sort(key=lambda l: index_map[id(l)])
@@ -624,11 +629,11 @@ if user_message:
         codigo_detectado = detectar_codigo_hierarquico(user_message)
         
         if codigo_detectado:
-            # *** FLUXO DE CONSULTA HIERÁRQUICA (NOVO) ***
-            item = buscar_item_hierarquico(DADOS_HIERARQUICOS, codigo_detectado)
+            # *** FLUXO DE CONSULTA HIERÁRQUICA DINÂMICA (NOVO) ***
+            itens = buscar_itens_hierarquicos(linhas_planilha, codigo_detectado)
             
-            if item:
-                response = formatar_resposta_hierarquica(item, codigo_detectado)
+            if itens:
+                response = formatar_resposta_hierarquica(itens, codigo_detectado)
                 st.markdown(response)
                 tokens_resposta = estimar_tokens(response)
                 st.caption(f"🔢 Tokens: **{tokens_resposta:,}** | 📋 Consulta hierárquica")
