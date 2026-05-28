@@ -576,10 +576,7 @@ if "total_perguntas" not in st.session_state:
 if not st.session_state.messages:
     with st.chat_message("assistant"):
         st.markdown(
-            "Olá! Eu sou a **GEI-line**, sua assistente virtual da Secretaria da "
-            "Educação.\n\n"
-            "Você pode me perguntar sobre dados de alunos ou perguntar por um código hierárquico "
-            "(ex: **4**, **4.3**, **4.4.1**) para ver o detalhamento completo! 📊"
+            "Olá! Eu sou a **GEI-line**, sua assistente virtual da Secretaria da Educação."
         )
 
 with st.sidebar:
